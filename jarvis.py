@@ -225,6 +225,8 @@ def processCommand(w):
         speak("Sorry, I encountered an error processing your command")
 
 def main():
+    with open("jarvis_log.txt", "a") as log: # logging
+        log.write(f"-----SESSION STARTED-----\n\n")
     time.sleep(1)
     speak('Initializing Jarvis...')
     run = True
@@ -326,7 +328,7 @@ def main():
                             log.write(f"{datetime.now()} - Except: {temp}\n")
                         continue
                         
-        
+        except sr.WaitTimeoutError:
             print(temp:="No wake word detected, continuing to listen...")
             with open("jarvis_log.txt", "a") as log: # logging
                 log.write(f"{datetime.now()} - Except: {temp}\n")
@@ -342,7 +344,7 @@ def main():
     
     speak("Session ended. Thanks for using Jarvis!")
     with open("jarvis_log.txt", "a") as log: # logging
-        log.write(f"-----SESSION END-----")
+        log.write(f"\n-----SESSION END-----\n\n")
 
 # test line
 # processCommand("search money can't buy happiness by nick hustles on spotify") 
