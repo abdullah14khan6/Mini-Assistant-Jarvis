@@ -93,9 +93,22 @@ def searchWebsite(search, site="google"):
         print(f"Error in searchWebsite: {e}")
         speak("Sorry, I couldn't perform the search")
 
+def cleanCommand(cmd):
+    filler_phrases = {
+        "for me", "please", "can you", "could you", "would you",
+        "i want you to", "i need you to", "kindly", "will you", "would you kindly",
+        "can u", "could u", "would u"
+    }
+    
+    cmd = cmd.lower()
+    for phrase in filler_phrases:
+        cmd = cmd.replace(phrase, "")
+    
+    return cmd.strip()
 
 def processCommand(w):
     print(f"Processing command: {w}")
+    w = cleanCommand(w)
     try:
         if "are you listening" in w:
             speak("yes i am")
