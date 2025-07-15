@@ -68,6 +68,8 @@ def speak(w):
         engine.say(w)
         engine.runAndWait()
         time.sleep(0.1)
+        with open("jarvis_log.txt", "a") as log: # logging
+            log.write(f"{datetime.now()} - Assistant: {w}\n")
     except Exception as e:
         print(f"Error in speak function: {e}")
 
@@ -215,7 +217,7 @@ def main():
     time.sleep(1)
     speak('Initializing Jarvis...')
     run = True
-    
+    inner = True
     r = sr.Recognizer()
     r.energy_threshold = 6000  # Lower = more sensitive
     r.dynamic_energy_threshold = True
@@ -230,6 +232,9 @@ def main():
             word = r.recognize_google(audio).lower() # type: ignore
             print(f"Heard: {word}")
             
+            with open("jarvis_log.txt", "a") as log: # logging
+                log.write(f"{datetime.now()} - Wake word heard: {word}\n")
+            
             if any(sleepWord in word for sleepWord in sleepWords):
                 speak("Going to sleep. Goodbye!")
                 break
@@ -239,7 +244,7 @@ def main():
                 # unknown_count = 0
                 timeout_count = 0
                 
-                while True:
+                while inner:
                     try:
                         with sr.Microphone() as m:
                             print('Jarvis is Listening...')
@@ -248,6 +253,8 @@ def main():
                         
                         command = r.recognize_google(audio).lower() # type: ignore
                         print(f"Command received: {command}")
+                        with open("jarvis_log.txt", "a") as log: # logging
+                            log.write(f"{datetime.now()} - Command: {command}\n")
                         
                         # unknown_count = 0
                         timeout_count = 0
@@ -257,6 +264,35 @@ def main():
                             run = False
                             break
                         
+                        if any(pauseWord in command for pauseWord in pauseWords):
+                            speak("Paused. Say 'Jarvis' or your wake word to resume.")
+                            while True:
+                                try:
+                                    with sr.Microphone() as m:
+                                        print('Jarvis is Listening...')
+                                        r.adjust_for_ambient_noise(m, duration=1)
+                                        audio = r.listen(m, timeout=8, phrase_time_limit=5)
+                                    
+                                    command = r.recognize_google(audio).lower() # type: ignore
+                                    print(f"Command received: {command}")
+                                    
+                                    with open("jarvis_log.txt", "a") as log: # logging
+                                        log.write(f"{datetime.now()} - Command: {command}\n")
+                                    
+                                    if any(sleepWord in command for sleepWord in sleepWords):
+                                        speak("Going to sleep. Goodbye!")
+                                        run = False
+                                        inner = False
+                                        break
+                                    
+                                    for wakeWord in wakeWords:
+                                        if wakeWord in command:
+                                            command = command.replace(wakeWord, "").strip()
+                                            break
+
+                                except Exception as e:
+                                    print(f'Error in command loop: {e}')
+                                    continue
                         processCommand(command)
                         
                     # except sr.UnknownValueError:
