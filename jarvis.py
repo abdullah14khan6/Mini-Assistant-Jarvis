@@ -81,8 +81,35 @@ def searchWebsite(search, site="google"):
             "quora": f"https://www.quora.com/search?q={query}",
             "stack overflow": f"https://stackoverflow.com/search?q={query}",
             "spotify": f"https://open.spotify.com/search/{query}",
-            "reddit": f"https://www.reddit.com/search/?q={query}"
+            "reddit": f"https://www.reddit.com/search/?q={query}",
+
+            "bing": f"https://www.bing.com/search?q={query}",
+            "duckduckgo": f"https://duckduckgo.com/?q={query}",
+            "brave": f"https://search.brave.com/search?q={query}",
+
+            "github": f"https://github.com/search?q={query}",
+            "geeksforgeeks": f"https://www.geeksforgeeks.org/?s={query}",
+            "w3schools": f"https://www.w3schools.com/howto/howto_js_search_menu.asp?q={query}",
+            "khan academy": f"https://www.khanacademy.org/search?page_search_query={query}",
+            "coursera": f"https://www.coursera.org/search?query={query}",
+
+            "amazon": f"https://www.amazon.com/s?k={query}",
+            "daraz": f"https://www.daraz.pk/catalog/?q={query}",
+            "ebay": f"https://www.ebay.com/sch/i.html?_nkw={query}",
+
+            "netflix": f"https://www.netflix.com/search?q={query}",
+            "imdb": f"https://www.imdb.com/find?q={query}",
+
+            "unsplash": f"https://unsplash.com/s/photos/{query}",
+            "pexels": f"https://www.pexels.com/search/{query}",
+            "dribbble": f"https://dribbble.com/search/{query}",
+            "behance": f"https://www.behance.net/search/projects?search={query}",
+
+            "arxiv": f"https://arxiv.org/search/?query={query}&searchtype=all",
+            "huggingface": f"https://huggingface.co/search/full-text?q={query}",
+            "openai": f"https://platform.openai.com/docs/search?q={query}"
         }
+
         
         if site in searchUrls:
             speak(f"searching {search} on {site}")
@@ -110,6 +137,9 @@ def processCommand(w):
     print(f"Processing command: {w}")
     w = cleanCommand(w)
     try:
+        if "help" in w or "what can you do" in w:
+            speak("You can ask me to open apps, search websites, tell time, and more.")
+
         if "are you listening" in w:
             speak("yes i am")
             return
@@ -175,7 +205,7 @@ def processCommand(w):
                     break
             
             if not siteFound:
-                speak("Command not recognized")
+                speak("I couldn't understand. Try rephrasing or say 'help'")
                 
     except Exception as e:
         print(f"Error in processCommand: {e}")
