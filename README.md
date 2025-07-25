@@ -48,7 +48,7 @@ This is my **first major Python project**, and it's been a challenging yet fulfi
 ---
 
 ## 🪟 GUI Version
-I also developed a basic **GUI interface** *(gui_ver.py)* with the help of AI tools.
+I also developed a basic **GUI interface** *(gui_ver.py)* with the help of AI tools(it is gui of an older version of jarvis).
 Even though I didn’t know Tkinter before, this experience **inspired me to learn it properly**, and I’m looking forward to building more interactive Python apps!
 
 ```

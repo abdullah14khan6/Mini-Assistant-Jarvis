@@ -7,58 +7,8 @@ import time
 import random
 import os
 import threading
+from data import *
   
-startingWords = ['ya', 'what can i do for you today', 'hi', 'hello', 'yup', 'hmmm']
-sleepWords = {"end jarvis", "exit", "bye", "sleep jarvis", "bye jarvis", "end", "terminate jarvis", "terminate" , "ok bye", "sleep", "sleep jarvis"}
-wakeWords = {"jarvis", "hey jarvis", "hello jarvis", "hi jarvis", "heya jarvis"}
-pauseWords = {"pause", "stop", "quiet", "shut up", "stop talking", "pause jarvis", "stop jarvis"}
-
-webpages = {
-    "google": "https://www.google.com",
-    "wikipedia": "https://www.wikipedia.org",
-    "youtube": "https://www.youtube.com",
-    "quora": "https://www.quora.com",
-    "stack overflow": "https://stackoverflow.com",
-    "reddit": "https://reddit.com",
-    "gmail": "https://mail.google.com",
-    "outlook": "https://outlook.live.com",
-    "whatsapp": "https://web.whatsapp.com",
-    "discord": "https://discord.com/app",
-    "telegram": "https://web.telegram.org",
-    "khan academy": "https://www.khanacademy.org",
-    "coursera": "https://www.coursera.org",
-    "edx": "https://www.edx.org",
-    "chatgpt": "https://chat.openai.com",
-    "geeks for geeks": "https://www.geeksforgeeks.org",
-    "w3schools": "https://www.w3schools.com",
-    "leetcode": "https://leetcode.com",
-    "hackerrank": "https://www.hackerrank.com",
-    "codeforces": "https://codeforces.com",
-    "linkedin": "https://www.linkedin.com",
-    "upwork": "https://www.upwork.com",
-    "fiverr": "https://www.fiverr.com",
-    "indeed": "https://www.indeed.com",
-    "google colab": "https://colab.research.google.com",
-    "github": "https://github.com",
-    "hugging face": "https://huggingface.co",
-    "papers with code": "https://paperswithcode.com",
-    "spotify": "https://open.spotify.com"
-}
-
-apps = {
-    "calculator": "calc.exe",
-    "command prompt": "cmd.exe",
-    "task manager": "taskmgr.exe",
-    "control panel": "control.exe",
-    "notepad": "notepad.exe",
-    "snipping tool": "snippingtool.exe",
-    "word": "C://Program Files//Microsoft Office//root//Office16//WINWORD.EXE",
-    "powerpoint": "C://Program Files//Microsoft Office//root//Office16//POWERPNT.EXE",
-    "excel": "C://Program Files//Microsoft Office//root//Office16//EXCEL.EXE",
-    "visual studio": "C://Program Files//Microsoft Visual Studio//2022//Community//Common7//IDE//devenv.exe",
-    "illustrator": "C://Program Files//Adobe//Adobe Illustrator 2025//Support Files//Contents//Windows//Illustrator.exe",
-    "photoshop": "C://Program Files//Adobe//Adobe Photoshop 2025//Photoshop.exe",
-}
 
 r = sr.Recognizer()
 r.energy_threshold = 6000  # Lower = more sensitive

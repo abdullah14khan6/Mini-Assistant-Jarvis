@@ -1,3 +1,5 @@
+# gui of an older version
+
 import speech_recognition as sr
 import pyttsx3 
 import pyaudio
@@ -87,7 +89,6 @@ def listenCommand(TO, PTL):
         audio = r.listen(m, timeout=TO, phrase_time_limit=PTL)
     return r.recognize_google(audio).lower() # type: ignore
         
-
 def searchWebsite(search, site="google"):
     try:
         query = search.replace(" ", "+")
