@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 import random
 import os
+import threading
   
 startingWords = ['ya', 'what can i do for you today', 'hi', 'hello', 'yup', 'hmmm']
 sleepWords = {"end jarvis", "exit", "bye", "sleep jarvis", "bye jarvis", "end", "terminate jarvis", "terminate" , "ok bye", "sleep", "sleep jarvis"}
@@ -58,9 +59,11 @@ apps = {
     "illustrator": "C://Program Files//Adobe//Adobe Illustrator 2025//Support Files//Contents//Windows//Illustrator.exe",
     "photoshop": "C://Program Files//Adobe//Adobe Photoshop 2025//Photoshop.exe",
 }
+
 r = sr.Recognizer()
 r.energy_threshold = 6000  # Lower = more sensitive
 r.dynamic_energy_threshold = True
+mic = sr.Microphone()
 
 def speak(w):
     try:
@@ -81,7 +84,6 @@ def listenCommand(TO, PTL):
         audio = r.listen(m, timeout=TO, phrase_time_limit=PTL)
     return r.recognize_google(audio).lower() # type: ignore
         
-
 def searchWebsite(search, site="google"):
     try:
         query = search.replace(" ", "+")
@@ -149,13 +151,14 @@ def processCommand(w):
         return
     if "help" in w or "what can you do" in w:
         speak("You can ask me to open apps, search websites, tell time, and more.")
+        commandLoop()
         
     print(f"Processing command: {w}")
     w = cleanCommand(w)
     try:
         if "are you listening" in w:
             speak("yes i am")
-            return
+            commandLoop()
 
         if "time" in w:
             now = datetime.now().strftime("%I:%M %p")
@@ -224,127 +227,125 @@ def processCommand(w):
         print(f"Error in processCommand: {e}")
         speak("Sorry, I encountered an error processing your command")
 
-def main():
-    with open("jarvis_log.txt", "a") as log: # logging
-        log.write(f"-----SESSION STARTED-----\n\n")
-    time.sleep(1)
-    speak('Initializing Jarvis...')
+def commandLoop():
+    global flag
     run = True
-    inner = True
-    
+
     while run:
         try:
-            print('Waiting for wake word...')
+            print('Jarvis is Listening...')
+            command = listenCommand(8, 5).replace('-', ' ')
             
-            word = listenCommand(5,3)
-            print(f"Heard: {word}")
-            
-            with open("jarvis_log.txt", "a") as log: # logging
-                log.write(f"{datetime.now()} - Wake word heard: {word}\n")
-            
-            if any(sleepWord in word for sleepWord in sleepWords):
+            print(f"Command received: {command}")
+            with open("jarvis_log.txt", "a") as log:  # logging
+                log.write(f"{datetime.now()} - Command: {command}\n")
+
+            if any(sleepWord in command for sleepWord in sleepWords):
                 speak("Going to sleep. Goodbye!")
+                run = False
                 command = ""
                 break
                 
-            if any(wakeWord in word for wakeWord in wakeWords):
-                speak(random.choice(startingWords))
-                unknownCount = 0
-                timeoutCount = 0
-                while inner:
-                    try:
-                        print('Jarvis is Listening...')
-                        command = listenCommand(8,5)
-                        
-                        print(f"Command received: {command}")
-                        with open("jarvis_log.txt", "a") as log: # logging
-                            log.write(f"{datetime.now()} - Command: {command}\n")
-                        
-                        
-                        
-                        if any(sleepWord in command for sleepWord in sleepWords):
-                            speak("Going to sleep. Goodbye!")
-                            run = False
-                            command = ""
-                            break
-                        
-                        if any(pauseWord in command for pauseWord in pauseWords):
-                            speak("Paused. Say 'Jarvis' or your wake word to resume.")
-                            while True:
-                                try:
-                                    print('Jarvis is Listening...')
-                                    
-                                    command = listenCommand(5,3)
-                                    print(f"Command received: {command}")
-                                    
-                                    with open("jarvis_log.txt", "a") as log: # logging
-                                        log.write(f"{datetime.now()} - Command: {command}\n")
-                                    
-                                    
-                                    if any(sleepWord in command for sleepWord in sleepWords):
-                                        speak("Going to sleep. Goodbye!")
-                                        run = False
-                                        inner = False
-                                        command = ""
-                                        break
-                                    
-                                    for wakeWord in wakeWords:
-                                        if wakeWord in command:
-                                            command = command.replace(wakeWord, "").strip()
-                                            break
-                                
-                                except sr.UnknownValueError:
-                                    print("Could not understand")
-                                    unknownCount += 1
-                                    if unknownCount >= 3:
-                                        print("Multiple unclear audio attempts")
-                                        speak("I'm having trouble understanding. Please speak clearly.")
-                                        unknownCount = 0
-                                    continue
-                                except Exception as e:
-                                    print(temp := f'paused Error in command loop: {e}')
-                                    with open("jarvis_log.txt", "a") as log: # logging
-                                        log.write(f"{datetime.now()} - Except: {temp}\n")
-                                    continue
-                        processCommand(command)
-                        
-                    # except sr.UnknownValueError:
-                    #     unknownCount += 1
-                    #     if unknownCount >= 3:
-                    #         print("Multiple unclear audio attempts")
-                    #         speak("I'm having trouble understanding. Please speak clearly.")
-                    #         unknownCount = 0
-                    #     continue
-                    except sr.WaitTimeoutError:
-                        timeoutCount += 1
-                        print("Listening timeout - continuing to listen...")
-                        if timeoutCount >= 4:
-                            speak("I'm still here. Say something or say 'sleep' to end.")
-                            timeoutCount = 0 
-                        continue
-                    except Exception as e:
-                        print(temp:=f'Error in command loop: {e}')
-                        with open("jarvis_log.txt", "a") as log: # logging
-                            log.write(f"{datetime.now()} - Except: {temp}\n")
-                        continue
-                        
-        except sr.WaitTimeoutError:
-            print(temp:="No wake word detected, continuing to listen...")
-            with open("jarvis_log.txt", "a") as log: # logging
-                log.write(f"{datetime.now()} - Except: {temp}\n")
-            continue
+            if "destruct" in command:
+                speak("Shutting down. Goodbye!")
+                command = ""
+                flag = False
+                run = False
+                return
+            
+            if any(pauseWord in command for pauseWord in pauseWords):
+                speak("Paused. Say 'Jarvis' or your wake word to resume")
+                return
+
+            processCommand(command)
+
         except sr.UnknownValueError:
-            print("Could not understand wake word")
+            with open("jarvis_log.txt", "a") as log:  # logging
+                log.write(f"{datetime.now()} - Except: Gibbrish\n")
+            speak("Sorry... couldn't understand what you said. Can you please repeat")
             continue
+        except sr.WaitTimeoutError:
+            with open("jarvis_log.txt", "a") as log:  # logging
+                log.write(f"{datetime.now()} - Except: timed out\n")
+            print("back to background listening")
+            return
         except Exception as e:
-            print(temp:= f'Error in main loop: {e}')
-            with open("jarvis_log.txt", "a") as log: # logging
+            temp = f'Error in command loop: {e}'
+            print(temp)
+            with open("jarvis_log.txt", "a") as log:  # logging
                 log.write(f"{datetime.now()} - Except: {temp}\n")
-            continue
+            speak("Sorry... Encountered an error. Can you please repeat")
+            continue      
+
+def wakeWordCallback(r, mic):
+    global stopListening
+    global flag
+    try:
+        word = r.recognize_google(mic).lower() # type: ignore
+        
+        print(f"Heard: {word}")
+                
+        if "destruct" in word:
+            speak("Shutting down. Goodbye!")
+            flag = False
+            return
+        
+        if any(sleepWord in word for sleepWord in sleepWords):
+            return
+            
+                    
+        if any(wakeWord in word for wakeWord in wakeWords):
+            speak(random.choice(startingWords))
+            
+            with open("jarvis_log.txt", "a") as log: # logging
+                log.write(f"{datetime.now()} - Wake word heard: {word}\n")
+                
+            def handler(): # used this handler because if we donot use it the stop listening throws an exception and tries to terminate the current thread too
+                stopListening() # stops the background listening thread
+                commandLoop() # runs the inner command identifying logic
+                start() # after the command loop returns it continues listening for the wake word
+
+            threading.Thread(target=handler).start() # starts the handler thread
+
+            # stopListening() # stops the background listening thread
+            # commandLoop() # runs the inner command identifying logic
+            # start() # after the command loop returns it continues listening for the wake word
     
-    speak("Session ended. Thanks for using Jarvis!")
+    except sr.UnknownValueError:
+        with open("jarvis_log.txt", "a") as log:  # logging
+            log.write(f"{datetime.now()} - Except: Gibbrish\n")
+
+    except Exception as e:
+        temp = f'Error in Wake Word Callback: {e}'
+        print(temp)
+        with open("jarvis_log.txt", "a") as log:  # logging
+            log.write(f"{datetime.now()} - Except: {temp}\n")
+
+def start():
+    global stopListening # an object of function which is global and uses concept of closures in python to stop the background listening thread 
+    stopListening = r.listen_in_background(mic, wakeWordCallback)
+    pass
+
+def main():
+    global flag
+    flag = True
     with open("jarvis_log.txt", "a") as log: # logging
-        log.write(f"\n-----SESSION END-----\n\n")
+        log.write(f"-----SESSION STARTED-----\n\n")
+        
+    time.sleep(1)
+    speak('Initializing Jarvis...')
+    print("Waiting for wake word!")
+    
+    start()
+    
+    try:
+        while flag:
+            time.sleep(0.1)  # Keep the main thread alive
+    except KeyboardInterrupt:
+        speak("Session ended. Thanks for using Jarvis!")
+        
+    with open("jarvis_log.txt", "a") as log:
+            log.write(f"\n-----SESSION END-----\n\n")
 
 # test line
 # processCommand("search money can't buy happiness by nick hustles on spotify") 

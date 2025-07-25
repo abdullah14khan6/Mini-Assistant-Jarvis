@@ -70,6 +70,10 @@ Assistant: searching today pakistani rupees to usd on google
 **🔧 Requirements**
   Install the dependencies using pip:
   ```bash
+  pip install virtualenv
+  virtualenv venv
+  .\venv\Scripts\activate
+
   pip install -r requirements.txt
   ```
 
